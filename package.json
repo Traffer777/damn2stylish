@@ -1,0 +1,15 @@
+{
+  "name": "damn2stylish-site",
+  "version": "1.0.0",
+  "description": "DAMN2STYLISH — landing (Express: static + Telegram lead endpoint)",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

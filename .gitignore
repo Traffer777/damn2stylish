@@ -1,0 +1,15 @@
+# secrets — NEVER commit
+.env
+.env.local
+.env*.local
+
+# deps / os
+node_modules
+.DS_Store
+
+# heavy source material — not part of the deployed site
+materials/
+
+# editor
+.vscode
+.idea
