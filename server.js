@@ -66,5 +66,8 @@ app.post('/api/lead', async (req, res) => {
 // health for platform probes
 app.get('/healthz', (_req, res) => res.type('text').send('ok'));
 
+// Bind explicitly to 0.0.0.0 — Node 22 defaults to IPv6 (::), but many
+// container proxies (incl. Timeweb App Platform) route via IPv4 only.
 const port = Number(process.env.PORT) || 4321;
-app.listen(port, () => console.log(`server up on :${port}`));
+const host = process.env.HOST || '0.0.0.0';
+app.listen(port, host, () => console.log(`server up on ${host}:${port}`));
