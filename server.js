@@ -68,8 +68,16 @@ app.get('/healthz', (_req, res) => res.type('text').send('ok'));
 
 // Bind explicitly to 0.0.0.0 — Node 22 defaults to IPv6 (::), but many
 // container proxies (incl. Timeweb App Platform) route via IPv4 only.
-// Default port 8080: Timeweb's edge proxy routes to 8080 unless told otherwise,
-// so listening there avoids the flaky runtime port-rediscovery step.
-const port = Number(process.env.PORT) || 8080;
+//
+// Port strategy: Timeweb's edge proxy (Caddy) routes to container port 8080
+// by default, but it may also inject a PORT env and route there instead.
+// To be immune to whichever it does, listen on BOTH 8080 and any injected
+// PORT. A failed bind on one port is logged, not fatal, so the other survives.
 const host = process.env.HOST || '0.0.0.0';
-app.listen(port, host, () => console.log(`server up on ${host}:${port}`));
+const ports = new Set([8080]);
+if (process.env.PORT) ports.add(Number(process.env.PORT));
+for (const p of ports) {
+  app.listen(p, host)
+    .on('listening', () => console.log(`server up on ${host}:${p}`))
+    .on('error', (e) => console.error(`bind failed on ${host}:${p} — ${e.code}`));
+}
