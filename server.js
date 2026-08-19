@@ -15,9 +15,13 @@ const app = express();
 
 app.use(express.json({ limit: '32kb' }));
 app.disable('x-powered-by');
+// Always revalidate: after a redeploy the new HTML (and any overwritten asset)
+// shows instantly instead of being served stale for up to an hour. ETag +
+// Last-Modified still yield cheap 304s, so unchanged files (e.g. the hero
+// video) aren't re-downloaded — only re-validated.
 app.use(express.static(path.join(__dirname, 'public'), {
   extensions: ['html'],
-  maxAge: '1h',
+  setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),
 }));
 
 app.post('/api/lead', async (req, res) => {

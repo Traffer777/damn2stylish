@@ -740,6 +740,22 @@
     setTimeout(finish,2600); // hard cap — never stick
   })();
 
+  // hero video — force autoplay/loop across Safari quirks
+  // (Low Power Mode, per-site "Never Auto-Play", muted-attr race).
+  (function(){
+    const v=document.querySelector('.hero-video');if(!v)return;
+    v.muted=true;v.defaultMuted=true;v.setAttribute('muted','');
+    function kick(){const p=v.play();if(p&&p.catch)p.catch(()=>{});}
+    v.addEventListener('loadeddata',kick);
+    v.addEventListener('canplay',kick);
+    v.addEventListener('ended',()=>{try{v.currentTime=0;}catch(e){}kick();}); // loop safety-net
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)kick();});
+    // any user gesture always satisfies the autoplay policy
+    ['pointerdown','touchstart','keydown','scroll'].forEach(ev=>
+      window.addEventListener(ev,kick,{once:true,passive:true}));
+    kick();
+  })();
+
   // scroll progress + subtle hero parallax
   (function(){
     const prog=document.getElementById('progress'),heroBg=document.querySelector('.hero-bg');
