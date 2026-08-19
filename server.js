@@ -4,7 +4,7 @@
 // Secrets come from env vars (never committed):
 //   TELEGRAM_BOT_TOKEN — from @BotFather
 //   TELEGRAM_CHAT_ID   — chat that receives leads
-//   PORT               — provided by Timeweb (falls back to 4321 locally)
+//   PORT               — provided by Timeweb (falls back to 8080, Timeweb's default edge port)
 
 import express from 'express';
 import path from 'node:path';
@@ -68,6 +68,8 @@ app.get('/healthz', (_req, res) => res.type('text').send('ok'));
 
 // Bind explicitly to 0.0.0.0 — Node 22 defaults to IPv6 (::), but many
 // container proxies (incl. Timeweb App Platform) route via IPv4 only.
-const port = Number(process.env.PORT) || 4321;
+// Default port 8080: Timeweb's edge proxy routes to 8080 unless told otherwise,
+// so listening there avoids the flaky runtime port-rediscovery step.
+const port = Number(process.env.PORT) || 8080;
 const host = process.env.HOST || '0.0.0.0';
 app.listen(port, host, () => console.log(`server up on ${host}:${port}`));
